@@ -247,7 +247,7 @@ rec_error = ((recid_percent_obs - recid_perct_known)/recid_perct_known)^2
 
 if(country == "Peru"){ # don't use admissions rate for errors
   
-  error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_start) / 4 # average incarceration prevalence, admissions, and recidivism error
+  error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_start) / 4 # average incarceration prevalence and recidivism error
   
   
   

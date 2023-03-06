@@ -100,7 +100,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
   
   if(country == "Peru"){ # don't use admissions rate for errors
     
-    error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_start) / 4 # average incarceration prevalence, admissions, and recidivism error
+    error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_start) / 4 # average incarceration prevalence and recidivism error
     
     
     
