@@ -16,10 +16,6 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
                                        time.to.now=time.passed) 
   
   
-  
-  
-  
-  
 {
   
   if(country == "Peru"){
