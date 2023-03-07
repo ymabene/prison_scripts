@@ -150,9 +150,9 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
 ######################################### Run Peru ###################################################
 
 
-# error: 0.0004428033
-all_params <- c(iR = 0.07125824, iE= 0.00047933, iN= 0.00047933, r =  0.5034239, k =  0, k1 = 5.534121e-05, k2 = 0, gf=0.4963707, 
-                gf2=1.5,
+# error: 0.0003756102
+all_params <- c(iR =  0.07198943, iE= 0.0004766401, iN=  0.0004766401, r =  0.5034239, k =  0, k1 =5.740375e-05, k2 = 0, gf=0.3148566, 
+                gf2= 2.094969,
                 muP= 0.01091325, muR= 0.0176291, muE=0.01678962, muS= 0.01091325,
                 muN=0.01678962, a=0.142857) # using 1/LE for general mortality and .65,1.05 for ratios 
 
@@ -247,8 +247,7 @@ rec_error = ((recid_percent_obs - recid_perct_known)/recid_perct_known)^2
 
 if(country == "Peru"){ # don't use admissions rate for errors
   
-  error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_end) / 4 # average incarceration prevalence and recidivism error
-  
+   error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_end) / 4 # average incarceration prevalence and recidivism error
   
   
 } else {
@@ -298,8 +297,8 @@ output_dt_s = output_dt[1001:1067,]
 output_melt <- melt(output_dt_s, id.vars = 'time', variable.name = 'Population', value.name = 'Count')
 output_melt$Population <- factor(output_melt$Population, levels = c('P','S','R', 'N', 'E', 'Total','Ishadow','Eshadow'),
                                  labels = c('First Time Incarcerated', 'Repeated Incarcerated', 'Released','Never Incarcerated', 'Ex-Prisoner', 'Total','Admissions','Exits'))
-ggplot(output_melt[!Population %in% c('Total','Admissions','Exits')], aes(x=time, y=Count, color=Population)) + geom_line() + theme_bw() +
-  scale_y_log10()
+ggplot(output_melt[!Population %in% c('Total','Admissions','Exits')], aes(x=time + 1490, y=Count, color=Population)) + geom_line() + theme_bw() +
+  scale_y_log10() + labs(x = "Years", y = "Count")
 
 library(ggplot2)
 
