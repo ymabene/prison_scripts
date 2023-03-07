@@ -39,7 +39,7 @@ prison_data <- read_excel("C:\\Users\\yasmi\\OneDrive\\My Documents\\Stanford-20
 ###################################################################
 
 ### There are two intervals of growth for the incarceration rates : 1990-2006 and 2006-2012. Incarceration rate growth stops from 
-### 2013-2019. The incarceration rates are reduced using gf and gf2 in 2020 after.
+### 2013-2020. The incarceration rates are reduced using gf and gf2 in 2020 after.
 
 country = "Peru"
 
