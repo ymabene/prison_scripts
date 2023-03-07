@@ -20,6 +20,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
   
   if(country == "Peru"){
     params[3] = 0.5034239 # release rate is fixed
+    params[4] = 0 # stop growth in first interval
     params[6] = 0 # two growth intervals
   }
   
@@ -100,7 +101,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
   
   if(country == "Peru"){ # don't use admissions rate for errors
     
-    error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_start) / 4 # average incarceration prevalence and recidivism error
+    error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_end) / 4 # average incarceration prevalence and recidivism error
     
     
     
@@ -127,7 +128,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
 
 
 # parscale (upper and lower bound average)
-scale <-c(0.25005000, 0.10005000, 1.10000000, 0.005000005, 0.005000005, 0.005000005, 0.10000000, 0.10000000) 
+scale <-c(0.25005000, 0.10005000, 1.10000000, 0.005000005, 0.005000005, 0.005000005, 1.05, 1.05) 
 
 get_iE_iR_grow <- function(
     recid_perct_known, # percentage of recidivists in prison population
@@ -145,7 +146,7 @@ get_iE_iR_grow <- function(
     a= 0.1428571, # rate of transition from post-release back to ex-prisoners
     param_start, # starting value for IR, ratio of IE:IR, r,  k, k1, k2, cf, cf2
     param_lower_bounds=c(0.0001, 0.0001, 0.2, 0.00000001, 0.00000001, 0.00000001,.1, .1), 
-    param_upper_bounds=c(.5,.2, 2, 0.01,0.01,0.01, 1, 1)
+    param_upper_bounds=c(.5,.2, 2, 0.01,0.01,0.01, 2, 2)
 ){
   unvarying_params <- c(muP, muR,muE,muS, muN, a)
   param_start <- param_start

@@ -19,8 +19,8 @@ prison_data <- read_excel("C:\\Users\\yasmi\\OneDrive\\My Documents\\Stanford-20
 # time.passed <- time until intervention end
 # time.to.now <- time until intervention end
 # intrvn.end= start.incr + time.passed
-# interval_one_years.input = year that ends the first interval of incarceration rate growth (Default = intrv.end)
-# interval_two_years.input = years the ends the second interval of incarceration rate growth (Default = intrv.end)
+# interval_one_years.input = year that ends the first interval of incarceration rate growth (Default = intrvn.end)
+# interval_two_years.input = years the ends the second interval of incarceration rate growth (Default = intrvn.end)
 # total_time = total time of intervention
 # cint.input = = amount of years the release rate stops decreasing for (Deafult = 0)
 # cintstart.input = year that we stop decreasing the release rate (Default = start.incr + total_time)
@@ -45,11 +45,11 @@ country = "Peru"
 
 finaltime <- 600
 start.incr <-500
-time.passed <- 29
-time.to.now <-29
+time.passed <- 30
+time.to.now <-30
 intrvn.end= start.incr + time.passed
 interval_one_years.input = 16
-interval_two_years.input = 23
+interval_two_years.input = 22
 total_time = 32 
 cint.input = 0
 cintstart.input = time.passed
@@ -67,7 +67,7 @@ peru_ip <- peru_ip[complete.cases(peru_ip), ] # Table with True incarceration pr
 peru_ad <- subset(peru, select=c('Year', 'Admissions Number', 'Population Size 15+'))
 peru_ad <- peru_ad[complete.cases(peru_ad), ] # Table with True admissions number data with corresponding years
 
-peru_rel <-  subset(peru, select=c('Release Rate', 'Year'))
+peru_rel <-  subset(peru, select=c('Year','Release Rate'))
 peru_rel <- peru_rel[complete.cases(peru_rel), ]  # Table with True release rate data with corresponding years
 
 years_rel <- peru_rel$Year - 1990 # years since 1990
@@ -88,11 +88,14 @@ my_mod <- lm(rel_known ~ years_rel)
 
 plot(years_rel,                       # Regression line plot
      rel_known,
-     type = "l")
+     type = "l",
+     xlab= "Years",
+     ylab= "Release Rate")
 lines(years_rel,
       predict(my_mod),
       col = 2,
-      lwd = 2)
+      lwd = 2
+      )
 my_coef <- coef(my_mod) 
 
 my_equation <- paste("y =",        # Regression equation
@@ -161,8 +164,8 @@ country = "Argentina"
 finaltime <- 600
 start.incr <-500
 intrvn.end= 532
-time.passed <- 29
-time.to.now <-29
+time.passed <- 30
+time.to.now <-30
 intrvn.end= start.incr + time.passed
 total_time <-32
 
