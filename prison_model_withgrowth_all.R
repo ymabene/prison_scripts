@@ -57,7 +57,8 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
         iN <- (iN+ k2*(intrvn.end-(intrvn.start + interval_two_years))+ k1*(interval_two_years - interval_one_years) + k*(interval_one_years))*gf
       }
       
-      else { # 2022+
+  
+      else { # 2022+, begins to return to pre-pandemic incarceration rate
         
         iR <- (iR+ k2*(intrvn.end-(intrvn.start + interval_two_years))+ k1*(interval_two_years - interval_one_years) + k*(interval_one_years))*gf2
         iE <- (iE+ k2*(intrvn.end-(intrvn.start + interval_two_years)) + k1*(interval_two_years - interval_one_years) + k*(interval_one_years))*gf2
@@ -99,7 +100,7 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
       
     } else { # use actual release rate data for Peru only
       
-      if ((t >= intrvn.start) & (t <= intrvn.start + total_time) ){ # 1990-2022
+      if ((t >= intrvn.start) & (t <= intrvn.start + total_time + 1) ){ # 1990-2023
         r <- intercept + (slope *(t - intrvn.start)) # incorporate predicted release rates
         
         
@@ -150,9 +151,8 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
 ######################################### Run Peru ###################################################
 
 
-# error: 0.0003756102
-all_params <- c(iR =  0.07198943, iE= 0.0004766401, iN=  0.0004766401, r =  0.5034239, k =  0, k1 =5.740375e-05, k2 = 0, gf=0.3148566, 
-                gf2= 2.094969,
+# error:0.0004544431
+all_params <- c(iR =   0.07170899, iE=   0.0004772377, iN=    0.0004772377, r =  0.5034239, k =  0, k1 =5.70424e-05, k2 = 0, gf= 0.4973802, gf2= 0.4993039,
                 muP= 0.01091325, muR= 0.0176291, muE=0.01678962, muS= 0.01091325,
                 muN=0.01678962, a=0.142857) # using 1/LE for general mortality and .65,1.05 for ratios 
 
@@ -322,9 +322,17 @@ if(country == 'Argentina'){ # Set true values
 
 g<-ggplot( df, aes(x=years_ip + 1990)) + 
   
-  geom_line(aes(y = ip_obs), color = "orange")+
+  geom_line(aes(y = ip_obs), color = "purple")+
   geom_point(data = df2, 
-             mapping = aes(x = year, y = aip),colour = "red")
+             mapping = aes(x = year, y = aip),colour = "black", size=3, shape=20)+
+  theme_bw() +
+  
+  ggtitle(label = 'Peru Incarceration Prevalence Over Time') +
+  theme(axis.title.x = element_text(size = 15)) +
+  theme(axis.title.y = element_text(size = 15)) +
+  theme(axis.text.x = element_text(size = 11)) +
+  theme(axis.text.y = element_text(size = 11)) +
+  theme(plot.title = element_text(size = 18))  
   
  
 
@@ -353,11 +361,18 @@ if(country == 'Argentina'){ # Set true values
 
 g<-ggplot( df, aes(x=years_ad + 1990)) + 
   
-  geom_line(aes(y = ad_obs), color = "blue")+
+  geom_line(aes(y = ad_obs), color = "purple")+
   geom_point(data = df2, 
-             mapping = aes(x = year, y = ad),colour = "red")
+             mapping = aes(x = year, y = ad),colour = "red", size=3, shape=20)+
+  theme_bw() +
+  ggtitle(label = 'Peru Admissions Rates Over Time') +
+  theme(axis.title.x = element_text(size = 15)) +
+  theme(axis.title.y = element_text(size = 15)) +
+  theme(axis.text.x = element_text(size = 11)) +
+  theme(axis.text.y = element_text(size = 11)) +
+  theme(plot.title = element_text(size = 18))  
 
-print(g + labs(x = "Years Since 1990", y = "Admissions"))
+print(g + labs(x = "Years", y = "Admissions"))
 
 
 ##################### Plot admissions and exit rate per 100k #######################################
@@ -378,8 +393,6 @@ plot(seq(1990,2022,1), ad_obs_all-rel_obs_all, xlab = "Years", ylab = "Net Admis
 ########################## Plot release rates################################
 
 plot(seq(1990,2022,1), rel_rate_obs_all, xlab = "Years", ylab = "Release Rate")
-
-
 
 
 

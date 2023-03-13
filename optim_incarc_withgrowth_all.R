@@ -126,7 +126,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
 
 
 # parscale (upper and lower bound average)
-scale <-c(0.25005000, 0.10005000, 1.10000000, 0.005000005, 0.005000005, 0.005000005, 1.55, 1.55) 
+scale <-c(0.25005000, 0.10005000, 1.10000000, 0.005000005, 0.005000005, 0.005000005, .55, .55) 
 
 get_iE_iR_grow <- function(
     recid_perct_known, # percentage of recidivists in prison population
@@ -143,8 +143,8 @@ get_iE_iR_grow <- function(
     muN,
     a= 0.1428571, # rate of transition from post-release back to ex-prisoners
     param_start, # starting value for IR, ratio of IE:IR, r,  k, k1, k2, cf, cf2
-    param_lower_bounds=c(0.0001, 0.0001, 0.2, 0.00000001, 0.00000001, 0.00000001,.1, .1), 
-    param_upper_bounds=c(.5,.2, 2, 0.01,0.01,0.01, 3, 3)
+    param_lower_bounds=c(0.0001, 0.0001, 0.2, 0.00000001, 0.00000001, 0.00000001,.1,.1), 
+    param_upper_bounds=c(.5,.2, 2, 0.01,0.01,0.01, 1,1)
 ){
   unvarying_params <- c(muP, muR,muE,muS, muN, a)
   param_start <- param_start
@@ -177,7 +177,7 @@ get_iE_iR_grow <- function(
   
   
   
-  return(list(iR=iR, iE=iE, r=r, k=k,k1=k1, k2=k2, gf=gf, gf2=gf2, error =error))
+  return(list(iR=iR, iE=iE, r=r, k=k,k1=k1, k2=k2, gf=gf,gf2=gf2, error =error))
 }
 
 
