@@ -223,7 +223,7 @@ for(i in 1:length(years_ip)){
 ad_obs<-vector() # observed admissions rate
 
 for(i in 1:length(years_ad)){
-  ad_obs<-append(ad_obs, output_dt[time == start.incr + years_ad[i], Ishadow] - output_dt[time == (start.incr + (years_ad[i] - 1)), Ishadow] )
+  ad_obs<-append(ad_obs, output_dt[time == start.incr + years_ad[i] + 1, Ishadow] - output_dt[time == (start.incr + (years_ad[i])), Ishadow] )
   
 }
 
@@ -264,22 +264,22 @@ if(country == "Peru"){ # don't use admissions rate for errors
 ad_obs_all<-vector() # observed admissions 
 
 for(i in 0:total_time){ #1990-2022
-  ad_obs_all<-append(ad_obs_all, output_dt[time == start.incr + i, Ishadow] - output_dt[time == (start.incr + i  -1), Ishadow] )
+  ad_obs_all<-append(ad_obs_all, output_dt[time == start.incr + i + 1, Ishadow] - output_dt[time == (start.incr + i ), Ishadow] )
   
 }
 
 rel_obs_all<-vector() # observed exits
 
 for(i in 0:total_time){ #1990-2022
-  rel_obs_all<-append(rel_obs_all, output_dt[time == start.incr + i, Eshadow] - output_dt[time == (start.incr + i -1), Eshadow] )
+  rel_obs_all<-append(rel_obs_all, output_dt[time == start.incr + i + 1, Eshadow] - output_dt[time == (start.incr + i), Eshadow] )
   
 }
 
 rel_rate_obs_all<-vector() # observed release rate
 
 for(i in 0:total_time){ #1990-2022
-  rel_rate_obs_all<-append(rel_rate_obs_all, (output_dt[time == start.incr + i, Eshadow] - output_dt[time == (start.incr + i -1), Eshadow])
-                           /output_dt[time == (start.incr + i -1), S + P] )
+  rel_rate_obs_all<-append(rel_rate_obs_all, (output_dt[time == start.incr + i + 1, Eshadow] - output_dt[time == (start.incr + i ), Eshadow])
+                           /output_dt[time == (start.incr + i ), S + P] )
   
 }
 

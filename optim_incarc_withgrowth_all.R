@@ -77,7 +77,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
   ad_obs<-vector() # observed admissions rate
   
   for(i in 1:length(years_ad)){
-    ad_obs<-append(ad_obs, output_dt[time == start.incr + years_ad[i], Ishadow] - output_dt[time == (start.incr + (years_ad[i] - 1)), Ishadow] )
+    ad_obs<-append(ad_obs, output_dt[time == start.incr + years_ad[i] + 1, Ishadow] - output_dt[time == (start.incr + (years_ad[i])), Ishadow] )
     
   }
   

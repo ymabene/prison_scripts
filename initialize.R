@@ -93,7 +93,7 @@ plot(years_rel,                       # Regression line plot
      ylab= "Release Rate")
 lines(years_rel,
       predict(my_mod),
-      col = 2,
+      col = "blue",
       lwd = 2
       )
 my_coef <- coef(my_mod) 
