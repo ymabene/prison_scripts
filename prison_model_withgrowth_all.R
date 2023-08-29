@@ -11,7 +11,7 @@ library(readxl)
 
 
 
-## Function modeling incarceration trends from 1990-present
+## prison.model.with.growth: Function modeling incarceration trends from 1990-present
 
 ## Input parameters: 
       ## t: time
@@ -36,10 +36,37 @@ library(readxl)
       ## dPdt, dSdt, dRdt, dNdt,dEdt (Number of people in model compartments)
       ## dIshadowdt, dEshadowdt (Total number of prison entries and exists in model)
 
+
+## Details
+  ## There are 3 total intervals over the time period that the model is run during which the admissions
+  ## and release rate trends can be modified. 
+  ## If the trends for the admissions rate is the same throughout
+  ## the entire period, then do not specify "interval_two_years" and "interval_one_years" (default = 0). 
+  ## If there is only one interval of incarceration growth, then only specify
+  ## "interval_one_years = intrvn.end - intrvn.start". ("interval_two_years" is set to 0 by default). 
+  ## If there are only 2 intervals, specify "interval_one_years" and "interval_two_years". The second
+  ## interval should end at "intrvn.end".
+  ## The number of years in the third interval is the remaining years after interval 2 ends until "intrvn.end".
+  ##
+  ## If there is no change in the release rates over the entire intervention period, then "change.r.start",
+  ## "change.r.end", "rel_one_years, and "rel_two_years" do not need to be specified. 
+  ## If there is only one interval of time where the release rate changes, then specify only 
+  ## "change.r.factor1" and "rel_one_years= change.r.end - intrvn.start". 
+  ## ("change.r.factor.2" and "change.r.factor3" will default to NA. "rel_two_years" will default to 0.)
+  ## If there are only two intervals, specify "change.r.factor1", "change.r.factor2", "rel_one_years", and
+  ## "rel_two_years." The second interval should end at "change.r.end." 
+  ## The number of years in the third interval is the remaining years after interval 2 ends until "change.r.end".
+  ##
+  ## If there are no changes due to covid, do not specify either "covid.start" or "covid.end" (default to 0).
+
+
+
+
+
 prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=Inf, change.r.start=Inf, change.r.end=Inf, 
                                      change.r.factor.1 = NA, change.r.factor.2 = NA, change.r.factor.3 = NA,
                                      interval_one_years = 0, interval_two_years=0, rel_one_years=0, rel_two_years = 0,
-                                     covid.start=NA,covid.end=NA)
+                                     covid.start=0,covid.end=0)
   
 
 {
