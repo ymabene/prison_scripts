@@ -5,21 +5,40 @@ library(SciViews)
 library(readxl)
 
 
-
-##### NOTE: Initialize values for selected country before running using intialize.R. Parameter definitions are in initialize.R
-
-
 #####################################################################################################################
 ######################################################################################################################
 
 
-# constants of regression model for fitting Peru (check initialize.R for regression model)
-intercept = 0.503423912234061
-slope = -0.00999950168014751
 
-prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=Inf, change.r.start1=Inf, change.r.end1=Inf, 
+
+## Function modeling incarceration trends from 1990-present
+
+## Input parameters: 
+      ## t: time
+      ## x: model compartments (P, S, R, N, E, Ishadow, Eshadow)
+      ## params: specified model rates (iR, IE, iN, r, k ..., muP ..., ... covid_a, covid_r)
+      ## intrvn.start: model start time
+      ## intrvn.end: model end time
+      ## change.r.start: start of release rate intervention period
+      ## change.r.end: end of release rate intervention period
+      ## change.r.factor.1: proportion of the release rate at start of interval 1 that is left at end of interval 1
+      ## change.r.factor.2: proportion of the release rate at start of interval 2 that is left at end of interval 2
+      ## change.r.factor.3: proportion of the release rate at start of interval 3 that is left at end of interval 3
+      ## interval_one_years: number of years of interval 1 for incarceration rate growth (eg. 11 for 1990-2001)
+      ## interval_two_years: number of years of interval 2 for incarceration rate growth (eg. 10 for 2010-2020)
+      ## rel_one_years: number of years in interval 1 for release rate trends (eg. 11 for 1990-2001)
+      ## rel_two_years: number of years in interval 2 for release rate trends (eg. 10 for 2010-2020)
+      ## covid.start = year offset to start decreasing admissions rate and increasing release rates due to Covid-19
+         ## (eg. 30 for 2020 since 1990 + 30 = 2020)
+      ## covid.end = year admissions/release rates returns to pre-pandemic level
+
+## Output parameters: List with the following parameters ::
+      ## dPdt, dSdt, dRdt, dNdt,dEdt (Number of people in model compartments)
+      ## dIshadowdt, dEshadowdt (Total number of prison entries and exists in model)
+
+prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=Inf, change.r.start=Inf, change.r.end=Inf, 
                                      change.r.factor.1 = NA, change.r.factor.2 = NA, change.r.factor.3 = NA,
-                                     interval_one_years = NA, interval_two_years=NA, rel_one_years=NA, rel_two_years = NA,
+                                     interval_one_years = 0, interval_two_years=0, rel_one_years=0, rel_two_years = 0,
                                      covid.start=NA,covid.end=NA)
   
 
@@ -68,7 +87,7 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
     
     
     if (t >= intrvn.start + interval_one_years + interval_two_years){ # third interval of growth
-      if(t < offset + covid.start){
+      if(t < intrvn.end){
         
       }
       iR <- iR+ k2*(t-(intrvn.start + interval_one_years + interval_two_years)) 
@@ -77,9 +96,9 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
       
     } else{
       
-      iR <- iR+ k2*((covid.start - interval_two_years - interval_one_years - intrvn.start + offset))
-      iE <- iE + k2*((covid.start - interval_two_years - interval_one_years - intrvn.start + offset))
-      iN <- iN + k2*((covid.start - interval_two_years - interval_one_years - intrvn.start + offset))
+      iR <- iR+ k2*((intrvn.end - interval_two_years - interval_one_years - intrvn.start ))
+      iE <- iE + k2*((intrvn.end - interval_two_years - interval_one_years - intrvn.start ))
+      iN <- iN + k2*((intrvn.end - interval_two_years - interval_one_years - intrvn.start ))
       
     }
     
@@ -91,13 +110,14 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
       # 1. user specifies the factor by which r changes (ie 0.5 if you want r to halve over the period); l1 is automatically calculated
       # 2. user specifies the proportion of prison growth resulting from changes in r (vs changes in admissions); l1 is calibrated during optimization
       
-      if (t >= change.r.start1){
+      if (t >= change.r.start){
         if (t < intrvn.end){
           if (!is.na(change.r.factor.1)){ # l1 is only calculated if r is to change via method 1 above, otherwise, l1 is fed-in during optimization
             l1 <- ((r * change.r.factor.1) - r) / (rel_one_years) # calculate the annual rate of change needed to get to the ultimate r
             # print(r)
             # print(rel_one_years)
             # print(change.r.factor.1)
+          
            
           }  
           
@@ -108,6 +128,8 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
             } else{
               
               l2 <- ((r * change.r.factor.2) - r) / (rel_two_years) 
+         
+             
               
             }
             
@@ -115,12 +137,14 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
           }  
           
           if (!is.na(change.r.factor.3)){ # l3 is only calculated if r is to change via method 1 above, otherwise, l3 is fed-in during optimization
-            if(rel_two_years == 0){
+            # if there is only 1 or 2 intervals for release rate trends, set l3 = l2
+            if(rel_two_years == 0 || rel_two_years + rel_one_years+ change.r.start == change.r.end){
               l3<-l2
+             
              
             } else{
               
-              l3 <- ((r * change.r.factor.3) - r) / (change.r.end1-(rel_two_years + rel_one_years+ change.r.start1) ) 
+              l3 <- ((r * change.r.factor.3) - r) / (change.r.end-(rel_two_years + rel_one_years+ change.r.start) ) 
               
             }
             
@@ -130,9 +154,9 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
         }
           
           
-          if(t >= change.r.start1){ # decrease/increase/maintain release rate
-            if(t < (change.r.start1 + rel_one_years)){
-              r <- r+l1*(t-change.r.start1)
+          if(t >= change.r.start){ # decrease/increase/maintain release rate
+            if(t < (change.r.start + rel_one_years)){
+              r <- r+l1*(t-change.r.start)
              # print(r)
               
             } else{
@@ -145,9 +169,9 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
             
           } 
           
-          if(t >= (change.r.start1 + rel_one_years)){ # # decrease/increase/maintain release rate
-            if(t < (change.r.start1 + rel_one_years+ rel_two_years)){
-              r <- r + l2*(t - (change.r.start1 + rel_one_years)) 
+          if(t >= (change.r.start + rel_one_years)){ # # decrease/increase/maintain release rate
+            if(t < (change.r.start + rel_one_years+ rel_two_years)){
+              r <- r + l2*(t - (change.r.start + rel_one_years)) 
               
             } else{
               
@@ -159,15 +183,20 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
             
           } 
           
-          if(t >= (change.r.start1 + rel_one_years + rel_two_years)){ # # decrease/increase/maintain release rate
-            if(t < (change.r.end1)){
+          if(t >= (change.r.start + rel_one_years + rel_two_years)){ # # decrease/increase/maintain release rate
+            if(t < (change.r.end)){
               
-              r <- r + l3*(t- (change.r.start1 + rel_one_years + rel_two_years)) #+ l2*(rel_two_years - rel_one_years) +l1*(rel_one_years)
+              r <- r + l3*(t- (change.r.start + rel_one_years + rel_two_years)) 
+              #print("l3")
+              #print(l3)
+              #print((change.r.start + rel_one_years + rel_two_years))
               
             } else{
               
-              r <- r + l3*(change.r.end1- (change.r.start1 + rel_one_years + rel_two_years))
-              #print(r)
+              r <- r + l3*(change.r.end- (change.r.start + rel_one_years + rel_two_years))
+              #print("l3")
+              #print(l3)
+              #print(change.r.end- (change.r.start + rel_one_years + rel_two_years))
               
             }
           }
@@ -196,27 +225,18 @@ prison.model.with.growth <- function(t, x, params, intrvn.start=Inf, intrvn.end=
     
     if (t >= offset + covid.start){
       
-      
-      if((t >= (offset + covid.start)) & (t < (offset + covid.end))){ # 2020-
+      if((t >= (offset + covid.start)) & (t < (offset + covid.end))){ # Covid-19 intervention period
         iR <- iR*covid_a
         iE <- iE*covid_a
-        iN <- iN*covid_a
+        iN <- iE*covid_a
         r <- r*covid_r
-  
-      }
-      
-  
-      if((t >=  (offset + covid.end)) & (t < intrvn.end)) { # returns to pre-pandemic incarceration rate
-       
-
         
-        iR <- iR+ k2*(t- (covid.end + intrvn.start)) #+ covid.start-(intrvn.start + interval_two_years))+ k1*(interval_two_years - interval_one_years) + k*(interval_one_years))
-        iE <- iE+ k2*(t-(covid.end + intrvn.start)) #+ covid.start-(intrvn.start + interval_two_years)) + k1*(interval_two_years - interval_one_years) + k*(interval_one_years))
-        iN <- iN+ k2*(t-(covid.end + intrvn.start)) #+ covid.start-(intrvn.start + interval_two_years))+ k1*(interval_two_years - interval_one_years) + k*(interval_one_years))
-       
-        r <- r + l3*(t-(covid.end + intrvn.start)) #+ l3*(change.r.end1- (change.r.start1 + rel_two_years)) #+ l2*(rel_two_years - rel_one_years) + l1*(rel_one_years)
+        #print(t)
+        #print(r)
+  
       }
       
+  
     }
     
     
@@ -309,7 +329,7 @@ all_params <- c(iR = 0.08068844, iE=  0.0009807887, iN=  0.0009807887, r =  1.85
 
 ######################################### Run Colombia  #################################################
 
-# error: .001
+
 
 all_params <- c(iR = 0.04642193, iE= 0.0005503423, iN= 0.0005503423, r =0.5034239, k = 1.929627e-05, k1 =  1e-08, k2 = 1e-08,
                 covid_a= 0.6539033, covid_r=1.364841,l1=0,l2=  -0.01502336,l3=  0.01564111,
@@ -319,12 +339,21 @@ all_params <- c(iR = 0.04642193, iE= 0.0005503423, iN= 0.0005503423, r =0.503423
                 muE = 0.017222,
                 muN = 0.017222, a=0.142857) 
 
+
 # r = .5034239
 
+# error = 0.002
+all_params <- c(iR =  0.04993228, iE= 0.0005544261, iN=  0.0005544261, r =0.5034239, k =  1e-06, k1 = 0, k2 =  0,
+                covid_a= 1, covid_r= 1.51989,l1=-0.016,l2= 0.007710299,l3= 0.007710299,
+                muP = 0.0111943, 
+                muS = 0.0111943,
+                muR = 0.0180831, 
+                muE = 0.017222,
+                muN = 0.017222, a=0.142857) # not fitting admissions
 
-
-all_params <- c(iR = 0.05189814, iE= 0.0005656261, iN=  0.0005656261, r =0.5034239, k =  1e-08, k1 = 0, k2 =  0,
-                covid_a=  0.6902856, covid_r=1.347039,l1=0,l2=-0.03281143,l3=  0.02587123,
+# error = 0.001
+all_params <- c(iR = 0.04088584, iE=  0.0009454473, iN=   0.0009454473, r =0.8440591, k =  1e-06, k1 = -1.01404e-09, k2 =  -1.01404e-09,
+                covid_a= 0.8616822, covid_r= 1.008613,l1= -0.016,l2=0.007710299,l3= 0.007710299,
                 muP = 0.0111943, 
                 muS = 0.0111943,
                 muR = 0.0180831, 
@@ -332,21 +361,14 @@ all_params <- c(iR = 0.05189814, iE= 0.0005656261, iN=  0.0005656261, r =0.50342
                 muN = 0.017222, a=0.142857) # not fitting admissions
 
 
-all_params <- c(iR = 0.05511821, iE= 0.0004689414, iN= 0.0004689414, r =0.5034239, k =  1e-08, k1 = 0, k2 =  0,
-                covid_a=  0.6902856, covid_r=1.345376,l1=05,l2=-0.03435735,l3= 0.01664506,
+# error .02
+all_params <- c(iR = 0.05403703 ,iE=0.0005959682, iN= 0.0005959682, r = 0.5794358, k =  1.172684e-05, k1 = 1.172684e-05, k2 = 1.172684e-05,
+                covid_a= 0.43, covid_r=1,l1=-0.016,l2= 0.007710299,l3=0.007710299,
                 muP = 0.0111943, 
                 muS = 0.0111943,
                 muR = 0.0180831, 
                 muE = 0.017222,
                 muN = 0.017222, a=0.142857) # fitting admissions
-
-all_params <- c(iR =  0.0525709, iE= 0.0005317931, iN=0.0005317931, r =0.5034239, k = 1e-08, k1 = 0, k2 =  0,
-                covid_a= 0.7104978, covid_r=1.338682,l1=0,l2= -0.03074574,l3= 0.01028386,
-                muP = 0.0111943, 
-                muS = 0.0111943,
-                muR = 0.0180831, 
-                muE = 0.017222,
-                muN = 0.017222, a=0.142857)
 
 
 
@@ -378,9 +400,9 @@ timeunit<-seq(0,finaltime,.5) # years
 #   parms=all_params,
 #   intrvn.start=start.incr, 
 #   intrvn.end=start.incr + time.passed,
-#   change.r.start1 = change.r.start1.input,
+#   change.r.start = change.r.start1.input,
 #   change.r.factor = change.r.factor.input,
-#   change.r.end1=change.r.end1.input,
+#   change.r.end=change.r.end1.input,
 #   cint = cint.input,
 #   cintstart = cintstart.input,
 #   interval_one_years = interval_one_years.input,
@@ -395,11 +417,11 @@ output <- ode(
   parms=all_params,
   intrvn.start=start.incr, 
   intrvn.end=start.incr + total_time,
-  change.r.start1 = change.r.start1.input,
+  change.r.start = change.r.start1.input,
   change.r.factor.1 = change.r.factor.1.input,
   change.r.factor.2 = change.r.factor.2.input,
   change.r.factor.3 = change.r.factor.3.input,
-  change.r.end1=change.r.end1.input,
+  change.r.end=change.r.end1.input,
   interval_one_years = interval_one_years.input,
   interval_two_years = interval_two_years.input,
   rel_one_years = rel_one_years.input,
@@ -464,7 +486,7 @@ ad_error = ((ad_obs - as.numeric(ad_known)) / as.numeric(ad_known))^2 # admissio
 rec_error = ((recid_percent_obs - recid_perct_known)/recid_perct_known)^2 
 
 
-if(country == "Peru"){ # don't use admissions rate for errors
+if(country == "Peru" ){ # don't use admissions rate for errors
   
   error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_end) / 4 # average incarceration prevalence and recidivism error
   
