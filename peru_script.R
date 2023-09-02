@@ -28,7 +28,7 @@ prison_data <- as.data.frame(prison_data)
 ## and [2006-2012). There is no growth in the first interval but growth in the second.
 ## Incarceration rate growth stops again from [2012-end). The incarceration
 ## rates are reduced in 2020 after. The release rates for Peru are determined using a regression model
-## fitt to actual release rate data. 
+## fit to actual release rate data. 
 
 
 ## For variable definitions see ("prison_model_withgrowth_all.R")
