@@ -136,7 +136,7 @@ country_incarc_rates <-  get_iE_iR_grow(recid_perct_known = .2471, recid_prob_kn
                                         muN = 0.01678962)
 
 
-
+# .0003 error
 
 ################## Run Calibrated Parameters in Prison Model and Plot ########
 ##############################################################################
