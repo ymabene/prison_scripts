@@ -281,9 +281,13 @@ output_dt[,Total := P+S+R+N+E]
 output_dt_s = output_dt[1001:1067,]
 
 output_melt <- melt(output_dt_s, id.vars = 'time', variable.name = 'Population', value.name = 'Count')
-output_melt$Population <- factor(output_melt$Population, levels = c('P','S','R', 'N', 'E', 'Total','Ishadow','Eshadow'),
-                                 labels = c('First Time Incarcerated', 'Repeated Incarcerated', 'Released','Never Incarcerated', 'Ex-Prisoner', 'Total','Admissions','Exits'))
-ggplot(output_melt[!Population %in% c('Total','Admissions','Exits')], aes(x=time + 1490, y=Count, color=Population)) + geom_line() + theme_bw() +
+output_melt$Population <- factor(output_melt$Population, levels = c('P','S','R', 'N', 'E', 'Total',
+                                                                    'Ishadow','Eshadow'),
+                                 labels = c('First Time Incarcerated', 'Repeated Incarcerated',
+                                            'Released','Never Incarcerated', 'Ex-Prisoner', 
+                                            'Total','Admissions','Exits'))
+ggplot(output_melt[!Population %in% c('Total','Admissions','Exits')], aes(x=time + 1490,
+                  y=Count, color=Population)) + geom_line() + theme_bw() +
   scale_y_log10() + labs(x = "Years", y = "Count")
 
 library(ggplot2)
