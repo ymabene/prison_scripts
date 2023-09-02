@@ -144,10 +144,16 @@ country_incarc_rates <-  get_iE_iR_grow(recid_perct_known = .2471, recid_prob_kn
 
 
 # calibrated values from optim function
+
+# *** Note: These parameters are hard coded to avoid having to re-run 
+# the optimization function. If you modify the optimization function
+# or its parameters, comment out these values***
+
 country_incarc_rates <-list(iR = 0.0668022, iE= 0.000487048, r = 0.5034239,
                         k = 0, k1 = 5.758476e-05, k2 =0,
                         covid_a= 0.7277991, covid_r =  1.373086)
 
+######################################################################
 
 all_params <- c(iR =  country_incarc_rates$iR, iE= country_incarc_rates$iE, 
                 iN= country_incarc_rates$iE, r =  country_incarc_rates$r, 
