@@ -235,7 +235,7 @@ for(i in 0:(stop.incr - offset)){ #1990-2024
   
 }
 
-
+################### Plot compartment population over time ###############
 
 output_dt[,Total := P+S+R+N+E]
 
