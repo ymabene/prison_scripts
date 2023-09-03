@@ -111,7 +111,7 @@ country_incarc_rates <-list(iR = 0.1909491, iE= 0.000677063, iN= 0.000677063, r 
 
 all_params <- c(iR =  country_incarc_rates$iR, iE= country_incarc_rates$iE, 
                 iN= country_incarc_rates$iE, r =  country_incarc_rates$r, 
-                k = 5.31675e-05, k1 =0, 
+                k = country_incarc_rates$k, k1 =0, 
                 k2 = 0, covid_a=  country_incarc_rates$covid_a, 
                 covid_r= country_incarc_rates$covid_r,l1=0,l2=0,l3=0,
                 muP= 0.01091325, muR= 0.0176291, muE=0.01678962, muS= 0.01091325,

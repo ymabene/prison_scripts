@@ -164,7 +164,7 @@ all_params <- c(iR =  country_incarc_rates$iR, iE= country_incarc_rates$iE,
                 muN=0.01678962, a=0.142857)
 
 
-## Note: k1 and k2 are set to 0 since
+## Note: k and k2 are set to 0 since
 ## we specified no growth in the first interval and there is no third interval.
 
 ## The l parameters are set to 0 since they are calculated in the prison model function.
