@@ -15,7 +15,6 @@
       ## recid_perct_year_known: Year corresponding to known recidivism percentage data
       ## start.incr: Time to start prison model (eg. 500)
       ## stop.incr: Time to end prison model
-      ## time.to.now: Time duration of the prison model
 
 ## Output parameters:
       ## error: error from optim function
@@ -25,8 +24,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
                                        xstart = c(P=0, S=0, R=0, N=100000,E=0, Ishadow=0, 
                                         Eshadow=0),years_ip, ip_known, years_ad, ad_known,
                                        recid_perct_known,recid_perct_year_known, 
-                                       start.incr, stop.incr,
-                                       time.to.now=time.passed) 
+                                       start.incr, stop.incr) 
   
   
 {
@@ -51,15 +49,16 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
   if(country == "Colombia"){
     #params[3] = 0.5034239 # release rate is fixed and sampled
     params[6] =  0 # two growth intervals only
-    params[11] = 0 # two intervals for release rates
-    params[7] = .43 # fixed change in admissions rate due to covid
+    #params[7] = .43 # fixed change in admissions rate due to covid
     #params[8] = 1.84 # fixed change in release rate due to covid
   }
   
   all_params <- c(iR = params[1], iE=params[1]*params[2], iN=params[1]*params[2], r=params[3],
                   k=params[4],k1=params[5],k2=params[6], covid_a=params[7], covid_r=params[8], 
-                  l1 = params[9], l2 = params[10], l3 = params[11], 
-                  muN=unvarying_params[5], a=unvarying_params[6]) 
+                  l1 = 0, l2 = 0, l3 = 0,  # l parameters are calculated in prison model
+                  muP=unvarying_params[1],muR=unvarying_params[2],muE=unvarying_params[3], 
+                  muS=unvarying_params[4], muN=unvarying_params[5], a=unvarying_params[6]) 
+  
   
 
   
@@ -69,7 +68,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
     times=timeunit,
     parms=all_params,
     intrvn.start=start.incr, 
-    intrvn.end=start.incr + total_time,
+    intrvn.end=stop.incr,
     change.r.start = change.r.start.input,
     change.r.factor.1 = change.r.factor.1.input,
     change.r.factor.2 = change.r.factor.2.input,
@@ -144,7 +143,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
   rec_error = ((recid_percent_obs - recid_perct_known)/recid_perct_known)^2 
   
   
-  if(country == "Peru"){ # don't use admissions rate for errors
+  if(country == "Peru" | country == "Colombia"){ # don't use admissions rate for errors
     
     error = (mean(ip_error) +  rec_error + ip_error_start + ip_error_end) / 4 
     # average incarceration prevalence and recidivism error
@@ -176,8 +175,6 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
     print(paste0('k2=', params[6]))
     print(paste0('covida=', params[7]))
     print(paste0('covidr=', params[8]))
-    print(paste0('l1=', params[9]))
-    print(paste0('l2=', params[10]))
     print(paste0('error=', error))
     
     smallest_error <<- error
@@ -193,6 +190,7 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
 
 ## optim_for_iE_iR_prob: Helper function for get_iE_iR_grow used to obtain incarceration 
 ## parameters given data. Used when recidivism probability is known.
+
 ## Input parameters:
 ## params: calibrated prison model rates (iR, IE, iN, r, k ..., covid_a, covid_r)
 ## timeunit: time unit for prison model
@@ -206,7 +204,6 @@ optim_for_iE_iR_perct_grow <- function(params, timeunit = seq(0,finaltime,.5),
 ## recid_prob_year_known: Year corresponding to known recidivism probability data
 ## start.incr: Time to start prison model (eg. 500)
 ## stop.incr: Time to end prison model
-## time.to.now: Time duration of the prison model
 
 ## Output parameters:
 ## error: error from optim function
@@ -216,8 +213,7 @@ optim_for_iE_iR_prob <- function(params, timeunit=seq(0,finaltime,1),
                                  xstart = c(P=0, S=0, R=0, N=100000,E=0, Ishadow=0, Eshadow=0),
                                  years_ip, ip_known, years_ad, ad_known,
                                  recid_prob_known,recid_prob_year_known, 
-                                 start.incr, stop.incr,
-                                 time.to.now=time.passed)
+                                 start.incr, stop.incr)
 {
   
   if(country == "Peru"){
@@ -247,8 +243,9 @@ optim_for_iE_iR_prob <- function(params, timeunit=seq(0,finaltime,1),
   
   all_params <- c(iR = params[1], iE=params[1]*params[2], iN=params[1]*params[2], r=params[3],
                   k=params[4],k1=params[5],k2=params[6], covid_a=params[7], covid_r=params[8], 
-                  l1 = params[9], l2 = params[10], l3 = params[11], 
-                  muN=unvarying_params[5], a=unvarying_params[6]) 
+                  l1 = 0, l2 = 0, l3 = 0,  # l parameters are calculated in prison model
+                  muP=unvarying_params[1],muR=unvarying_params[2],muE=unvarying_params[3], 
+                  muS=unvarying_params[4], muN=unvarying_params[5], a=unvarying_params[6]) 
   
   
   
@@ -258,7 +255,7 @@ optim_for_iE_iR_prob <- function(params, timeunit=seq(0,finaltime,1),
     times=timeunit,
     parms=all_params,
     intrvn.start=start.incr, 
-    intrvn.end=start.incr + total_time,
+    intrvn.end=stop.incr,
     change.r.start = change.r.start.input,
     change.r.factor.1 = change.r.factor.1.input,
     change.r.factor.2 = change.r.factor.2.input,
@@ -368,8 +365,6 @@ optim_for_iE_iR_prob <- function(params, timeunit=seq(0,finaltime,1),
     print(paste0('k2=', params[6]))
     print(paste0('covida=', params[7]))
     print(paste0('covidr=', params[8]))
-    print(paste0('l1=', params[9]))
-    print(paste0('l2=', params[10]))
     print(paste0('error=', error))
     
     smallest_error <<- error
@@ -398,14 +393,13 @@ optim_for_iE_iR_prob <- function(params, timeunit=seq(0,finaltime,1),
       ## ad_known: Known admissions data
       ## start.incr: Time to start prison model (eg. 500)
       ## stop.incr: Time to end prison model
-      ## time.to.now: Time duration of the prison model
       ## muP: Mortality rate for first time incarcerated
       ## muS: Mortality rate for second time incarcerated
       ## muR: Mortality rate for released
       ## muE: Mortaility rate for ex-prisoners
       ## muN: Mortality rate for never incarcerated
       ## a: Rate of transition from post-release back to ex-prisoners (1/7)
-      ## param_start: Starting value for IR, ratio of IE:IR, r,  k, k1, k2, covid_a, covid_r, l1,l2,l3
+      ## param_start: Starting value for IR, ratio of IE:IR, r,  k, k1, k2, covid_a, covid_r
       ## param_lower_bounds: Lower bounds for parameters
       ## param_upper_bounds: Upper bounds for parameters
       ## scale: Average of lower and upper bounds
@@ -428,7 +422,6 @@ get_iE_iR_grow <- function(
     recid_prob_year_known, 
     years_ip,ip_known, years_ad, ad_known,
     start.incr, stop.incr,
-    time.to.now=time.passed,
     muP, 
     muS,
     muR,
@@ -453,8 +446,7 @@ get_iE_iR_grow <- function(
                        recid_perct_known=recid_perct_known, 
                        recid_perct_year_known = recid_perct_year_known,
                        unvarying_params = unvarying_params,
-                       start.incr=start.incr, stop.incr=stop.incr,
-                       time.to.now=time.to.now)
+                       start.incr=start.incr, stop.incr=stop.incr)
   } else{
     
     optim_res <- optim(param_start, optim_for_iE_iR_prob_grow, method='L-BFGS-B', 
@@ -464,8 +456,7 @@ get_iE_iR_grow <- function(
                        recid_prob_known=recid_prob_known, 
                        recid_prob_year_known = recid_prob_year_known,
                        unvarying_params = unvarying_params,
-                       start.incr=start.incr, stop.incr=stop.incr,
-                       time.to.now=time.to.now)
+                       start.incr=start.incr, stop.incr=stop.incr)
     
     
   }
@@ -481,108 +472,12 @@ get_iE_iR_grow <- function(
   k2 <- optim_res$par[6]
   covid_a <- optim_res$par[7]
   covid_r <- optim_res$par[8]
-  l1 <- optim_res$par[9]
-  l2 <- optim_res$par[10]
-  l3 <- optim_res$par[11]
   error <- optim_res$value
   
   
   
   return(list(iR=iR, iE=iE, r=r, k=k,k1=k1, k2=k2, covid_a=covid_a,
-              covid_r=covid_r,l1=l1,l2=l2,l3=l3, error =error)) 
+              covid_r=covid_r, error =error)) 
 }
 
-
-
-
-
-
-
-
-########################## Run Brazil ###############################
-# 
-# smallest_error <- Inf
-# 
-# country_incarc_rates <-  get_iE_iR_grow(recid_perct_known = .49, recid_prob_known = 0, recid_perct_year_known = 23.5, recid_prob_year_known = 0,
-#                                         years_ip = years_ip ,ip_known = ip_known, years_ad = years_ad, 
-#                                         ad_known=ad_known,start.incr = start.incr, stop.incr = start.incr + time.passed,
-#                                         param_start = c(0.09865996, 0.00167854, .2, 5.700556e-06, 5.700556e-06, 5.700556e-06,1,1),
-#                                         muP =0.001104304, 
-#                                         muS = 0.001104304,
-#                                         muR = 0.01783875, 
-#                                         muE = 0.01698929,
-#                                         muN = 0.01698929) # using 1/LE for muN and .065 and 1.05 for muR and muP ratios
-# 
-
-
-######################### Run Peru ###################################
-
-
-
-smallest_error <- Inf
-
-
-country_incarc_rates <-  get_iE_iR_grow(recid_perct_known = .2471, recid_prob_known = 0, recid_perct_year_known = 31,
-                                        years_ip = years_ip ,recid_prob_year_known = 0,
-                                        ip_known = ip_known, years_ad = years_ad,
-                                        ad_known=ad_known,start.incr = start.incr, stop.incr = start.incr + time.passed,
-                                        param_start = c(0.09865996, 0.00167854, 0.5034239, 5.700556e-06, 5.700556e-06, 5.700556e-06,.5,1.5),
-                                        param_lower_bounds=c(0.0001, 0.0001, 0.2, 0.00000001, 0.00000001, 0.00000001,.1,1), #,0,-.056,0), 
-                                        param_upper_bounds=c(.5,.2, 2, 0.01,.01,0.01, 1,4), #,.14,0,.14),
-                                        scale =c(0.25005000, 0.10005000, 1.10000000, 0.005000005, 0.005000005, 0.005000005, .55, .55),
-                                        muP = 0.01091325,
-                                        muS =  0.01091325,
-                                        muR = 0.0176291,
-                                        muE = 0.01678962,
-                                        muN = 0.01678962)
-
-
-
-
-
-# ######################### Run Argentina ###################################
-# 
-# 
-# smallest_error <- Inf
-# 
-# 
-# country_incarc_rates <-  get_iE_iR_grow(recid_perct_known = .28, recid_prob_known = 0, recid_perct_year_known = 29,
-#                                         years_ip = years_ip ,recid_prob_year_known = 0,
-#                                         ip_known = ip_known, years_ad = years_ad, 
-#                                         ad_known=ad_known,start.incr = start.incr, stop.incr = start.incr + time.passed,
-#                                         param_start = c(0.09865996, 0.00167854, 0.5034239, 5.700556e-06, 5.700556e-06, 5.700556e-06,.5,.5),
-#                                         muP = 0.01091325, 
-#                                         muS =  0.01091325,
-#                                         muR = 0.0176291, 
-#                                         muE = 0.01678962,
-#                                         muN = 0.01678962)
-# 
-# 
-# 
-# 
-
-######################### Run Colombia ###################################
-
-
-
-
-smallest_error <- Inf
-
-
-country_incarc_rates <-  get_iE_iR_grow(recid_perct_known = .223, recid_prob_known = 0, recid_perct_year_known = 29,
-                                        years_ip = years_ip ,recid_prob_year_known = 0,
-                                        ip_known = ip_known, years_ad = years_ad, 
-                                        ad_known=ad_known,start.incr = start.incr, stop.incr = start.incr + time.passed,
-                                        param_start = c(0.05511821, 0.008507921, .5034239, 1e-06, 0, 0,.43,1.84,-0.016,0.007710299, 0.007710299),
-                                        param_lower_bounds=c(0.0001, 0.0001, 0.2, 0.000001, -0.00001, -0.00001,.1,1,-.016,0,0), 
-                                        param_upper_bounds=c(.5,.2, 2, .01,0,0, 1,4,0,.16,.16),
-                                        scale =c(0.2499500, 0.0999500, 0.9000000, 0.0049995, 0.0000050, 0.0000050,0.4500000, 1.5,0.0080000,0.0800000,0.0800000),
-                                        muP = 0.0111943, 
-                                        muS = 0.0111943,
-                                        muR = 0.0180831, 
-                                        muE = 0.017222,
-                                        muN = 0.017222)
-
-debug(optim_for_iE_iR_perct_grow)
-debug(get_iE_iR_grow)
 
