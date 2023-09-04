@@ -61,11 +61,11 @@ brazil_ad <- subset(brazil, select=c('Year', 'Admissions.Number', 'Population.Si
 brazil_ad <- brazil_ad[complete.cases(brazil_ad), ] 
 
 # Adjusted true incarceration prevalence
-years_ip<-brazil_ip$Year - 1990 # years since 1990
+years_ip<-brazil_ip$Year - 1990 # Years of incarceration data written as years since 1990
 ip_known<-brazil_ip$`Adjusted.Incarceration.Prevalence` 
 ip_known <- as.numeric(ip_known)
 
-years_ad<-brazil_ad$Year - 1990 # years since 1990
+years_ad<-brazil_ad$Year - 1990 # # Years of admissions data written as years since 1990
 ad_known<-(as.numeric(brazil_ad$`Admissions.Number`)/as.numeric(brazil_ad$`Population.Size.15.`))*100000 
 # Adjusted true admissions
 

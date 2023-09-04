@@ -37,7 +37,6 @@ country = "Argentina"
 finaltime <- 600
 start.incr <-500 # 2020
 stop.incr<-532 # 2022
-intrvn.end= stop.incr
 
 interval_one_years.input = 12
 interval_two_years.input = 13
@@ -65,12 +64,12 @@ argentina_ad <- argentina_ad[complete.cases(argentina_ad), ]
 # Table with True admissions number data with corresponding years
 
 
-years_ip<-argentina_ip$Year - 1990 # years since 1990
+years_ip<-argentina_ip$Year - 1990 # Years of incarceration rate data written as years since 1990
 ip_known<-argentina_ip$`Adjusted.Incarceration.Prevalence` 
 # Adjusted true incarceration prevalence
 ip_known<-as.numeric(ip_known)
 
-years_ad<-argentina_ad$Year - 1990 # years since 1990
+years_ad<-argentina_ad$Year - 1990 # Years of admissions data written as years since 1990
 ad_known<-(as.numeric(argentina_ad$`Admissions.Number`)/as.numeric(argentina_ad$`Population.Size.15`))*100000 
 # Adjusted true admissions
 
